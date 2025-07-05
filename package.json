@@ -1,0 +1,29 @@
+{
+  "name": "quickmart",
+  "version": "1.0.0",
+  "description": "I am building this project based off what I have learnt from Mr Augustine an AxiaAfrica staff.",
+  "homepage": "https://github.com/Ajibzrahz/QuickMart#readme",
+  "bugs": {
+    "url": "https://github.com/Ajibzrahz/QuickMart/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ajibzrahz/QuickMart.git"
+  },
+  "license": "ISC",
+  "author": "Ajibona Raheem",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.15.1"
+  }
+}
