@@ -3,6 +3,6 @@ import { getCart } from "../controllers/cart_control.js";
 
 const cartRouter = e.Router();
 
-cartRouter.get("/cart", getCart)
+cartRouter.route("/").get(getCart)
 
 export default cartRouter

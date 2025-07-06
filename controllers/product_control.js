@@ -29,14 +29,14 @@ const addProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
   const { id, role } = req.customer;
-  const { productId } = req.query;
+  const { productID } = req.query;
   const payload = req.body;
   //checking if user is a seller
   if (role !== "seller") {
     return res.send("you cannot edit this product");
   }
   try {
-    const product = await productModel.findById(productId);
+    const product = await productModel.findById(productID);
     //checking if post exist
     if (!product) {
       return res.send("This post does not exist");
@@ -49,7 +49,7 @@ const editProduct = async (req, res) => {
     }
     //updating product
     const updated = await productModel.findByIdAndUpdate(
-      productId,
+      productID,
       { ...payload },
       { new: true }
     );

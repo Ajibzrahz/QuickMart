@@ -4,6 +4,6 @@ import authenticate from "../middlewares/auth.middleware.js";
 
 const cartItemRouter = e.Router();
 
-cartItemRouter.post("/cart-item", authenticate, createCartItem);
+cartItemRouter.route("/").post(authenticate, createCartItem);
 
 export default cartItemRouter;
