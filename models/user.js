@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Hash } from "../middlewares/document_middleware.js";
+import { HashedDetails } from "../middlewares/document_middleware.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", Hash)
+userSchema.pre("save", HashedDetails);
 
 const userModel = mongoose.model("User", userSchema);
 export default userModel;

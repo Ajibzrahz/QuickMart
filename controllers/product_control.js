@@ -2,10 +2,10 @@ import productModel from "../models/product.js";
 import userModel from "../models/user.js";
 
 const addProduct = async (req, res) => {
-  const { id, role } = req.customer;
+  const { id, role } = req.user;
   const product = req.body;
   //
-  if (role !== "seller") {
+  if (role !== "seller" && role !== "admin") {
     return res.send("you cannot add a product, create a seller account");
   }
   try {
@@ -28,7 +28,7 @@ const addProduct = async (req, res) => {
 };
 
 const editProduct = async (req, res) => {
-  const { id, role } = req.customer;
+  const { id, role } = req.user;
   const { productID } = req.query;
   const payload = req.body;
   //checking if user is a seller

@@ -20,8 +20,7 @@ const createUser = async (req, res) => {
       message: "You already have an account, try login",
     });
   }
-  //Hashing and standard password
-  const hashedPassword = await bcrypt.hash(payload.password, 10);
+
   const regexPassword =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@$%^&*?]).{8,}$/;
   if (!regexPassword.test(payload.password)) {
@@ -31,10 +30,7 @@ const createUser = async (req, res) => {
   }
 
   try {
-    const newUser = new userModel({
-      ...payload,
-      password: hashedPassword,
-    });
+    const newUser = new userModel(payload);
     const savedUser = await newUser.save();
     res.json(savedUser);
 
@@ -51,13 +47,16 @@ const login = async (req, res) => {
       email: email.toLowerCase(),
     });
     //verifying the credentials
+
     if (!user) {
-      res.json({
+      return res.json({
         message: "Account does not exist, Create account",
       });
     }
+    const cart = await cartModel.findOne({ user: user._id });
+    //console.log(cart)
     // comparing the passwords
-    const compareHashedPassword = await bcrypt.compare(password, user.password);
+    const compareHashedPassword = bcrypt.compareSync(password, user.password);
 
     // verifying password
     if (!compareHashedPassword) {
@@ -71,6 +70,7 @@ const login = async (req, res) => {
       {
         id: user.id,
         role: user.role,
+        cartId: cart._id,
       },
       process.env.JWT_SECRET,
       {
@@ -83,6 +83,7 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: true,
     });
+    
     return res.json({
       messsage: "Login Successful",
     });
@@ -153,7 +154,7 @@ const getUsers = async (req, res) => {
       .limit(3)
       .sort({
         last_name: 1,
-        first_name: 1
+        first_name: 1,
       })
       .populate({
         path: "products",

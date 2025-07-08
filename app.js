@@ -7,6 +7,7 @@ import product from "./routes/product_route.js";
 import cookieParser from "cookie-parser";
 import cartRouter from "./routes/cart_route.js";
 import cartItemRouter from "./routes/cartItem_route.js";
+import order from "./routes/order_route.js";
 
 const app = express();
 const port = "5000";
@@ -31,3 +32,4 @@ app.use("/api/v1/user", users);
 app.use("/api/v1/product", product);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/cartitem", cartItemRouter);
+app.use("/api/v1/order", order);

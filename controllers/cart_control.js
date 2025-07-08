@@ -1,7 +1,8 @@
 import cartModel from "../models/cart.js";
 
 const getCart = async (req, res) => {
-  const { cartId } = req.query;
+  const { cartId } = req.user;
+  
   try {
     const carts = await cartModel.findById(cartId)
     .populate({
