@@ -24,8 +24,20 @@ mongoose
   .catch((err) => {
     console.log("Error:" + err);
   });
-//middlewares
+//content-types middlewares
 app.use(express.json());
+app.use(
+  express.text({
+    type: [
+      "text/plain",
+      "text/html",
+      "application/javascript",
+      "application/xml",
+    ],
+  })
+);
+app.use(express.urlencoded());
+
 app.use(cookieParser());
 // routers
 app.use("/api/v1/user", users);
