@@ -3,44 +3,53 @@ import userModel from "../models/user.js";
 import bcrypt, { hash } from "bcrypt";
 import cartModel from "../models/cart.js";
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const payload = req.body;
 
   //confirming all important credential
   if (!payload.password || !payload.email) {
-    return res.json({
-      message: "please input the require credentials",
-    });
+    const error = new Error("please input the require credentials");
+    error.status = 400;
+    return next(error);
+    // return res.json({
+    //   message: "please input the require credentials",
+    // });
   }
 
   //checking user exist
   const existingUser = await userModel.findOne({ email: payload.email });
   if (existingUser) {
-    return res.json({
-      message: "You already have an account, try login",
-    });
+    const err = new Error("You already have an account, try login");
+    err.status = 409;
+    return next(err);
+    // return res.json({
+    //   message: "You already have an account, try login",
+    // });
   }
 
   const regexPassword =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@$%^&*?]).{8,}$/;
   if (!regexPassword.test(payload.password)) {
-    return res.json({
-      message: "Input a correct password format",
-    });
+    const err = new Error("Input a correct password format");
+    err.status = 400;
+    return next(err);
+    // return res.json({
+    //   message: "Input a correct password format",
+    // });
   }
 
   try {
     const newUser = new userModel(payload);
     const savedUser = await newUser.save();
-    res.json(savedUser);
+    res.status(201).json(savedUser);
 
     await cartModel.create({ user: savedUser._id });
   } catch (error) {
-    return res.status(500).json({ message: "Server error", error });
+    next(error);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const user = await userModel.findOne({
@@ -49,9 +58,9 @@ const login = async (req, res) => {
     //verifying the credentials
 
     if (!user) {
-      return res.json({
-        message: "Account does not exist, Create account",
-      });
+      const err = new Error("Account does not exist, Create account");
+      err.status = 404;
+      return next(err);
     }
     const cart = await cartModel.findOne({ user: user._id });
     //console.log(cart)
@@ -60,9 +69,9 @@ const login = async (req, res) => {
 
     // verifying password
     if (!compareHashedPassword) {
-      return res.json({
-        message: "Incorrect email or password",
-      });
+      const err = new Error("Incorrect email or password");
+      err.status = 404;
+      return next(err);
     }
 
     //generating the token
@@ -83,16 +92,16 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: true,
     });
-    
-    return res.json({
+
+    return res.status(202).json({
       messsage: "Login Successful",
     });
   } catch (error) {
-    res.send(error.message);
+    next(error);
   }
 };
 
-const getUser = async (req, res) => {
+const getUser = async (req, res, next) => {
   const { firstname, lastname } = req.query;
   try {
     const users = await userModel.aggregate([
@@ -106,6 +115,14 @@ const getUser = async (req, res) => {
             $regex: lastname,
             $options: "i",
           },
+        },
+      },
+      {
+        $limit: 3,
+      },
+      {
+        $sort: {
+          first_name: 1,
         },
       },
       {
@@ -141,13 +158,13 @@ const getUser = async (req, res) => {
       },
     ]);
 
-    res.json(users);
+    res.status(200).json(users);
   } catch (error) {
-    res.json(error.message);
+    next(error);
   }
 };
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const allUsers = await userModel
       .find()
@@ -163,9 +180,9 @@ const getUsers = async (req, res) => {
           sort: { price: -1 },
         },
       });
-    res.json(allUsers);
+    res.status(200).json(allUsers);
   } catch (error) {
-    res.json(error.message);
+    next(error);
   }
 };
 

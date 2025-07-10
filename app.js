@@ -33,3 +33,9 @@ app.use("/api/v1/product", product);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/cartitem", cartItemRouter);
 app.use("/api/v1/order", order);
+
+app.use((error, req, res, next) => {
+  return res
+    .status(error.status || 504)
+    .json({ message: error.message || "something happened" });
+});

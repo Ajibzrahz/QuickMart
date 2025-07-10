@@ -1,12 +1,14 @@
 import productModel from "../models/product.js";
 import userModel from "../models/user.js";
 
-const addProduct = async (req, res) => {
+const addProduct = async (req, res, next) => {
   const { id, role } = req.user;
   const product = req.body;
   //
   if (role !== "seller" && role !== "admin") {
-    return res.send("you cannot add a product, create a seller account");
+    const err = new Error("you cannot add a product, create a seller account");
+    err.status = 403;
+    return next(err);
   }
   try {
     const newProduct = new productModel({
@@ -18,48 +20,55 @@ const addProduct = async (req, res) => {
     userInfo.products.push(savedproduct._id);
     await userInfo.save();
 
-    res.json({
+    return res.status(201).json({
       message: "Item added Successfully",
       item: savedproduct,
     });
   } catch (error) {
-    return res.json({ Error: error.message });
+    next(error);
   }
 };
 
-const editProduct = async (req, res) => {
+const editProduct = async (req, res, next) => {
   const { id, role } = req.user;
   const { productID } = req.query;
   const payload = req.body;
   //checking if user is a seller
-  if (role !== "seller") {
-    return res.send("you cannot edit this product");
-  }
+  // if (role !== "seller") {
+  //   const err = new Error("you cannot edit this product")
+  //   err.status
+  //   return res.send();
+  // }
   try {
     const product = await productModel.findById(productID);
-    //checking if post exist
-    if (!product) {
-      return res.send("This post does not exist");
-    }
     //checking if the user can update the product
     if (id != product.seller) {
-      return res.json({
-        message: "This product is not your, You cannot edit this product!!!",
-      });
+      const err = new Error(
+        "This product is not your, You cannot edit this product!!!"
+      );
+      err.status = 403;
+      return next(err);
     }
+    //checking if post exist
+    if (!product) {
+      const err = new Error("This product does not exist");
+      err.status = 404;
+      return next(err);
+    }
+
     //updating product
     const updated = await productModel.findByIdAndUpdate(
       productID,
       { ...payload },
       { new: true }
     );
-    res.json(updated);
+    res.status(200).json(updated);
   } catch (error) {
-    return res.send(error.message);
+    next(error);
   }
 };
 
-const getProduct = async (req, res) => {
+const getProduct = async (req, res, next) => {
   const { brandName } = req.query;
   try {
     const products = await productModel.aggregate([
@@ -98,7 +107,7 @@ const getProduct = async (req, res) => {
     ]);
     return res.json(products);
   } catch (error) {
-    res.json(error.message);
+    next(error);
   }
 };
 
