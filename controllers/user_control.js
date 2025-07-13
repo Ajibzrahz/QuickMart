@@ -1,10 +1,13 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/user.js";
-import bcrypt, { hash } from "bcrypt";
+import bcrypt from "bcrypt";
 import cartModel from "../models/cart.js";
+import cloudinary from "../utils/cloudinary.js";
+import fs from "fs/promises"
 
 const createUser = async (req, res, next) => {
   const payload = req.body;
+  const pics = req.file.path;
 
   //confirming all important credential
   if (!payload.password || !payload.email) {
@@ -39,7 +42,16 @@ const createUser = async (req, res, next) => {
   }
 
   try {
-    const newUser = new userModel(payload);
+    const result = await cloudinary.uploader.upload(pics, {
+      resource_type: "image",
+    });
+
+    await fs.unlink(pics)
+
+    const newUser = new userModel({
+      profilePic: result.secure_url,
+      ...payload
+    });
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
 

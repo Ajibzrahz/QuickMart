@@ -5,10 +5,11 @@ import {
   getUsers,
   login,
 } from "../controllers/user_control.js";
+import { profilePicture } from "../middlewares/multer.js";
 
 const userRouter = express.Router();
 
-userRouter.route("/").post(createUser).get(getUser);
+userRouter.route("/").post(profilePicture, createUser).get(getUser);
 userRouter.route("/login").post(login);
 userRouter.route("/all").get(getUsers);
 

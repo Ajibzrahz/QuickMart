@@ -1,18 +1,44 @@
 import productModel from "../models/product.js";
 import userModel from "../models/user.js";
 
+import cloudinary from "../utils/cloudinary.js";
+import fs from "fs/promises";
+
 const addProduct = async (req, res, next) => {
   const { id, role } = req.user;
   const product = req.body;
-  //
+  const pictures = req.files;
+
+  if (!pictures) {
+    const err = new Error("unsupported file");
+    err.status = 400;
+    return next(err);
+  }
+
   if (role !== "seller" && role !== "admin") {
     const err = new Error("you cannot add a product, create a seller account");
     err.status = 403;
     return next(err);
   }
   try {
+    const uploadedimages = [];
+
+    for (const file of pictures) {
+      const result = await cloudinary.uploader.upload(file.path, {
+        resource_type: "image",
+        folder: "images",
+      });
+      uploadedimages.push(result.secure_url);
+
+      await fs.unlink(file.path);
+    }
+
+    console.log(uploadedimages);
+    //
+
     const newProduct = new productModel({
       seller: id,
+      image: uploadedimages,
       ...product,
     });
     const savedproduct = await newProduct.save();
