@@ -3,7 +3,7 @@ import userModel from "../models/user.js";
 import bcrypt from "bcrypt";
 import cartModel from "../models/cart.js";
 import cloudinary from "../utils/cloudinary.js";
-import fs from "fs/promises"
+import fs from "fs/promises";
 
 const createUser = async (req, res, next) => {
   const payload = req.body;
@@ -45,18 +45,24 @@ const createUser = async (req, res, next) => {
     const result = await cloudinary.uploader.upload(pics, {
       resource_type: "image",
     });
+    await fs.unlink(pics);
 
-    await fs.unlink(pics)
+    if (!result) {
+      const err = new Error("Format not supported");
+      err.status = 400;
+      next(err);
+    }
 
     const newUser = new userModel({
       profilePic: result.secure_url,
-      ...payload
+      ...payload,
     });
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
 
     await cartModel.create({ user: savedUser._id });
   } catch (error) {
+    await fs.unlink(pics);
     next(error);
   }
 };
