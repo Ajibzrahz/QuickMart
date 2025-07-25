@@ -4,6 +4,6 @@ import authenticate from "../middlewares/auth.middleware.js";
 
 const cartRouter = e.Router();
 
-cartRouter.route("/").get(authenticate, getCart)
+cartRouter.route("/").get(authenticate, getCart);
 
-export default cartRouter
+export default cartRouter;

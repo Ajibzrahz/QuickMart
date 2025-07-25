@@ -28,7 +28,7 @@ const orderSchema = new mongoose.Schema(
     },
     totalAmount: {
       type: Number,
-      requires: true,
+      required: true,
     },
     placedAt: {
       type: Date,

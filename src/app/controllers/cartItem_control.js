@@ -1,3 +1,4 @@
+import customAPIError from "../error/custom-error.js";
 import cartModel from "../models/cart.js";
 import cartItemModel from "../models/cartItem.js";
 import productModel from "../models/product.js";
@@ -7,15 +8,16 @@ const createCartItem = async (req, res, next) => {
   const { id, cartId } = req.user;
 
   if (!id) {
-    const err = new Error("You cannot add this product to your cart, LOGIN!!");
-    err.status = 401;
+    const err = new customAPIError(
+      "You cannot add this product to your cart, LOGIN!!",
+      401
+    );
     return next(err);
   }
   try {
     const productId = await productModel.findById(payload.product);
     if (!productId) {
-      const err = new Error("Product does not exist");
-      err.status = 404;
+      const err = new customAPIError("Product does not exist", 404);
       return next(err);
     }
 
@@ -43,15 +45,13 @@ const removeFromCart = async (req, res, next) => {
   const { id, cartId } = req.user;
 
   if (!id) {
-    const err = new Error("Login!");
-    err.status = 404;
+    const err = new customAPIError("Login!", 404);
     return next(err);
   }
   try {
     const item = await cartItemModel.findById(itemId);
     if (!item) {
-      const err = new Error("Item not found");
-      err.status = 400;
+      const err = new customAPIError("Item not found", 400);
       return next(err);
     }
     const deleted = await cartItemModel.findByIdAndDelete(itemId);

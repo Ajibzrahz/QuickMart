@@ -2,8 +2,9 @@ import jwt from "jsonwebtoken";
 import userModel from "../models/user.js";
 import bcrypt from "bcrypt";
 import cartModel from "../models/cart.js";
-import cloudinary from "../utils/cloudinary.js";
+import cloudinary from "../../../utils/cloudinary.js";
 import fs from "fs/promises";
+import customAPIError from "../error/custom-error.js";
 
 const createUser = async (req, res, next) => {
   const payload = req.body;
@@ -11,8 +12,10 @@ const createUser = async (req, res, next) => {
 
   //confirming all important credential
   if (!payload.password || !payload.email) {
-    const error = new Error("please input the require credentials");
-    error.status = 400;
+    const error = new customAPIError(
+      "please input the require credentials",
+      400
+    );
     return next(error);
     // return res.json({
     //   message: "please input the require credentials",
@@ -22,8 +25,10 @@ const createUser = async (req, res, next) => {
   //checking user exist
   const existingUser = await userModel.findOne({ email: payload.email });
   if (existingUser) {
-    const err = new Error("You already have an account, try login");
-    err.status = 409;
+    const err = new customAPIError(
+      "You already have an account, try login",
+      409
+    );
     return next(err);
     // return res.json({
     //   message: "You already have an account, try login",
@@ -33,8 +38,7 @@ const createUser = async (req, res, next) => {
   const regexPassword =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@$%^&*?]).{8,}$/;
   if (!regexPassword.test(payload.password)) {
-    const err = new Error("Input a correct password format");
-    err.status = 400;
+    const err = new customAPIError("Input a correct password format", 400);
     return next(err);
     // return res.json({
     //   message: "Input a correct password format",
@@ -48,9 +52,8 @@ const createUser = async (req, res, next) => {
     await fs.unlink(pics);
 
     if (!result) {
-      const err = new Error("Format not supported");
-      err.status = 400;
-      next(err);
+      const err = new customAPIError("Format not supported", 400);
+      return next(err);
     }
 
     const newUser = new userModel({
@@ -62,6 +65,7 @@ const createUser = async (req, res, next) => {
 
     await cartModel.create({ user: savedUser._id });
   } catch (error) {
+    console.log(error);
     await fs.unlink(pics);
     next(error);
   }
@@ -76,8 +80,10 @@ const login = async (req, res, next) => {
     //verifying the credentials
 
     if (!user) {
-      const err = new Error("Account does not exist, Create account");
-      err.status = 404;
+      const err = new customAPIError(
+        "Account does not exist, Create account",
+        400
+      );
       return next(err);
     }
     const cart = await cartModel.findOne({ user: user._id });
@@ -87,8 +93,7 @@ const login = async (req, res, next) => {
 
     // verifying password
     if (!compareHashedPassword) {
-      const err = new Error("Incorrect email or password");
-      err.status = 404;
+      const err = new customAPIError("Incorrect email or password", 404);
       return next(err);
     }
 

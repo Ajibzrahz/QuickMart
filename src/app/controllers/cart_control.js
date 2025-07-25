@@ -19,8 +19,6 @@ const getCart = async (req, res, next) => {
 const deleteFromCart = async (req, res, next) => {
   const { cartItemId } = req.query;
   const { id } = req.user;
-
-  
 };
 
 export { getCart };

@@ -1,16 +1,18 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
-import users from "./routes/user_route.js";
-import product from "./routes/product_route.js";
+import dotenv from "./utils/dotenv.js";
 import cookieParser from "cookie-parser";
-import cartRouter from "./routes/cart_route.js";
-import cartItemRouter from "./routes/cartItem_route.js";
-import order from "./routes/order_route.js";
+import userRouter from "./src/app/routes/user_route.js";
+import product from "./src/app/routes/product_route.js";
+import cartRouter from "./src/app/routes/cart_route.js";
+import cartItemRouter from "./src/app/routes/cartItem_route.js";
+import order from "./src/app/routes/order_route.js";
+import review from "./src/app/routes/review_routes.js";
+import notFound from "./src/app/middlewares/not-found.js";
+import errorMiddleware from "./src/app/middlewares/error-handler.js";
 
 const app = express();
-const port = "5000";
+const port = process.env.PORT || 5000;
 
 //connecting to mongoDB
 mongoose
@@ -40,14 +42,12 @@ app.use(express.urlencoded());
 
 app.use(cookieParser());
 // routers
-app.use("/api/v1/user", users);
+app.use("/api/v1/user", userRouter);
 app.use("/api/v1/product", product);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/cartitem", cartItemRouter);
 app.use("/api/v1/order", order);
+app.use("/api/v1/review", review);
 
-app.use((error, req, res, next) => {
-  return res
-    .status(error.status || 504)
-    .json({ message: error.message || "something happened" });
-});
+app.use(notFound);
+app.use(errorMiddleware);

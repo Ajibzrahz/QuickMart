@@ -6,4 +6,6 @@ const productImage = upload.array("image", 10);
 
 const profilePicture = upload.single("profilePic");
 
-export { productImage, profilePicture };
+const reviewVideo = upload.single("video")
+
+export { productImage, profilePicture, reviewVideo };

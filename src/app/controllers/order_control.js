@@ -1,3 +1,4 @@
+import customAPIError from "../error/custom-error.js";
 import cartModel from "../models/cart.js";
 import orderModel from "../models/order.js";
 
@@ -6,13 +7,14 @@ const createOrder = async (req, res, next) => {
   const { id, cartId } = req.user;
 
   if (!id) {
-    const err = new Error("login to create order");
-    err.status = 401;
+    const err = new customAPIError("login to create order", 401);
     return next(err);
   }
   if (!payload.address) {
-    const err = new Error("provide a valid address for your order to delivered");
-    err.status = 400;
+    const err = new customAPIError(
+      "provide a valid address for your order to delivered",
+      400
+    );
     return next(err);
   }
 
@@ -37,7 +39,7 @@ const createOrder = async (req, res, next) => {
       order: saveOrder,
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 const getOrder = async (req, res) => {};

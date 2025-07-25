@@ -13,4 +13,5 @@ userRouter.route("/").post(profilePicture, createUser).get(getUser);
 userRouter.route("/login").post(login);
 userRouter.route("/all").get(getUsers);
 
+
 export default userRouter;

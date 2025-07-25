@@ -1,29 +1,34 @@
 import productModel from "../models/product.js";
 import userModel from "../models/user.js";
 
-import cloudinary from "../utils/cloudinary.js";
+import cloudinary from "../../../utils/cloudinary.js";
 import fs from "fs/promises";
+import customAPIError from "../error/custom-error.js";
 
 const addProduct = async (req, res, next) => {
   const { id, role } = req.user;
   const product = req.body;
-  const pictures = req.files;
+  const image = req.files;
 
-  if (!pictures) {
-    const err = new Error("unsupported file");
-    err.status = 400;
+  if (role !== "seller" && role !== "admin") {
+    const err = new customAPIError(
+      "you cannot add a product, create a seller account",
+      403
+    );
     return next(err);
   }
 
-  if (role !== "seller" && role !== "admin") {
-    const err = new Error("you cannot add a product, create a seller account");
-    err.status = 403;
+  if (!image || image.length === 0) {
+    const err = new customAPIError(
+      "please provide an image for your product",
+      400
+    );
     return next(err);
   }
   try {
     const uploadedimages = [];
 
-    for (const file of pictures) {
+    for (const file of image) {
       const result = await cloudinary.uploader.upload(file.path, {
         resource_type: "image",
         folder: "images",
@@ -68,17 +73,16 @@ const editProduct = async (req, res, next) => {
   try {
     const product = await productModel.findById(productID);
     //checking if the user can update the product
-    if (id != product.seller) {
-      const err = new Error(
-        "This product is not your, You cannot edit this product!!!"
+    if (id.toString() != product.seller.toString() && role != "admin") {
+      const err = new customAPIError(
+        "You do not have permission to edit this product.",
+        403
       );
-      err.status = 403;
       return next(err);
     }
     //checking if post exist
     if (!product) {
-      const err = new Error("This product does not exist");
-      err.status = 404;
+      const err = new customAPIError("This product does not exist", 404);
       return next(err);
     }
 
