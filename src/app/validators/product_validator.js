@@ -9,6 +9,7 @@ const productValidator = Joi.object({
     .required()
     .messages({
       "array.min": "Please provide at least one image",
+      "string.uri": "Video must be a valid URL",
     }),
 
   brand: Joi.string().required(),
@@ -17,7 +18,9 @@ const productValidator = Joi.object({
 
   seller: Joi.string().hex().length(24).required().messages({
     "string.hex": "Must be an objectID",
-    "string.required": "Seller ID id required",
+    "any.required": "Seller ID is required",
   }),
   
 });
+
+export default productValidator

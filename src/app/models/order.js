@@ -5,17 +5,15 @@ const orderSchema = new mongoose.Schema(
     user: {
       type: mongoose.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     items: [
       {
         type: mongoose.Types.ObjectId,
         ref: "CartItem",
+        required: true,
       },
     ],
-    address: {
-      type: String,
-      required: true,
-    },
     payment: {
       type: String,
       enum: ["Transfer", "Cash", "Card"],

@@ -4,7 +4,8 @@ const reviewSchema = new mongoose.Schema({
   rating: {
     type: Number,
     default: 4,
-    required: true,
+    min: 1,
+    max: 5,
   },
   User: {
     type: mongoose.Types.ObjectId,
@@ -18,16 +19,15 @@ const reviewSchema = new mongoose.Schema({
   },
   comment: {
     type: String,
-
   },
   video: {
     type: String,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 const reviewModel = mongoose.model("Review", reviewSchema);
-export default reviewModel
+export default reviewModel;
